@@ -13,6 +13,18 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css">
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js'></script>
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth'
+        });
+        calendar.render();
+      });
+
+    </script>
 </head>
 <body>
 
@@ -20,13 +32,18 @@
     <h4 class="text-center mb-4">Internship Work Days Calculator</h4>
 
     <div class="mb-3">
+      <label class="form-label">Start Date</label>
+      <input type="date" id="startDate" class="form-control">
+    </div>
+
+    <div class="mb-3">
       <label class="form-label">Total Required Hours</label>
-      <input type="number" id="totalHours" class="form-control" placeholder="e.g. 600">
+      <input type="number" id="totalHours" class="form-control" placeholder="e.g. 600" value="300">
     </div>
 
     <div class="mb-3">
       <label class="form-label">Hours per Shift (per day)</label>
-      <input type="number" id="hoursPerShift" class="form-control" placeholder="e.g. 8">
+      <input type="number" id="hoursPerShift" class="form-control" placeholder="e.g. 8" value="8">
     </div>
 
     <button class="btn btn-primary w-100" onclick="calculateDays()">
@@ -37,6 +54,21 @@
         <p id="result" class="result" style="white-space: pre-line;"></p>
     </div>
   </div>
+
+  <div class="calculator-card mt-4">
+    <div id="calendar"></div>
+  </div>
+
+  <script>
+    // Set default start date to today (local time)
+    const startDateInput = document.getElementById('startDate');
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    startDateInput.value = `${yyyy}-${mm}-${dd}`;
+  </script>
+
 
   <!-- Custom JS -->
   <script src="script.js"></script>
