@@ -27,24 +27,33 @@
     </script>
 </head>
 <body>
-
   <div class="calculator-card">
     <h4 class="text-center mb-4">Internship Work Days Calculator</h4>
 
+    <!-- Company Name -->
+    <div class="mb-3">
+      <label class="form-label">Company Name</label>
+      <input type="text" id="companyName" class="form-control" placeholder="Company Name Corp." required>
+    </div>
+
+    <!-- Start Date -->
     <div class="mb-3">
       <label class="form-label">Start Date</label>
-      <input type="date" id="startDate" class="form-control">
+      <input type="date" id="startDate" class="form-control" required>
     </div>
 
+    <!-- Total Required Hours -->
     <div class="mb-3">
       <label class="form-label">Total Required Hours</label>
-      <input type="number" id="totalHours" class="form-control" placeholder="e.g. 600" value="300">
+      <input type="number" id="totalHours" class="form-control" placeholder="e.g. 600" value="300" required>
     </div>
 
+    <!-- Hours per Shift -->
     <div class="mb-3">
       <label class="form-label">Hours per Shift (per day)</label>
-      <input type="number" id="hoursPerShift" class="form-control" placeholder="e.g. 8" value="8">
+      <input type="number" id="hoursPerShift" class="form-control" placeholder="e.g. 8" value="8" required>
     </div>
+
 
     <button class="btn btn-primary w-100" onclick="calculateDays()">
       Calculate Work Days
@@ -54,6 +63,7 @@
         <p id="result" class="result" style="white-space: pre-line;"></p>
     </div>
   </div>
+
 
   <div class="calculator-card mt-4">
     <div id="calendar"></div>
