@@ -124,71 +124,61 @@ async function calculateDays() {
   let onsiteHours = 0;
   let remoteHours = 0;
 
+  // Map day numbers to IDs
+  const dayIdMap = ['sun','mon','tue','wed','thu','fri','sat'];
+
   while (daysAdded < Math.ceil(totalHours / hoursPerShift)) {
     const dayOfWeek = currentDate.getDay(); // 0=Sun, 6=Sat
     const dateStr = currentDate.toISOString().split('T')[0];
+    const dayId = dayIdMap[dayOfWeek];
+    const dayToggle = document.getElementById(dayId);
 
-    // Skip weekends
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-
-      // Check if this day is toggled on in advanced options
-      let dayId;
-      switch(dayOfWeek) {
-        case 1: dayId = 'mon'; break;
-        case 2: dayId = 'tue'; break;
-        case 3: dayId = 'wed'; break;
-        case 4: dayId = 'thu'; break;
-        case 5: dayId = 'fri'; break;
-      }
-      const dayToggle = dayId ? document.getElementById(dayId) : null;
-
-      if (!dayToggle || dayToggle.checked) {
-
-        // Skip holidays
-        const isHoliday = holidayDates.includes(dateStr);
-
-        // Count hours only if not holiday
-        if (!isHoliday) {
-          workdayDates.push(new Date(currentDate));
-          daysAdded++;
-
-          // Hybrid breakdown
-          if (hybridEnabled && dayToggle) {
-            const onsiteRadio = document.getElementById(`${dayId}Onsite`);
-            const remoteRadio = document.getElementById(`${dayId}Remote`);
-            if (onsiteRadio && onsiteRadio.checked) onsiteHours += hoursPerShift;
-            else if (remoteRadio && remoteRadio.checked) remoteHours += hoursPerShift;
-            else onsiteHours += hoursPerShift; // fallback if no radio selected
-          }
-        }
-
-        // Highlight holidays in yellow
-        if (isHoliday) {
-          const holiday = holidays.find(h => h.date === dateStr);
-          calendar.addEvent({
-            title: holiday ? holiday.localName : "Holiday",
-            start: dateStr,
-            display: 'background',
-            backgroundColor: '#ffc107' // yellow
-          });
-        }
-      }
+    // Skip if the day toggle exists and is unchecked
+    if (dayToggle && !dayToggle.checked) {
+      currentDate.setDate(currentDate.getDate() + 1);
+      continue;
     }
+
+    // Check if this day is a holiday
+    const isHoliday = holidayDates.includes(dateStr);
+    if (isHoliday) {
+      const holiday = holidays.find(h => h.date === dateStr);
+      calendar.addEvent({
+        title: holiday ? holiday.localName : "Holiday",
+        start: dateStr,
+        display: 'background',
+        backgroundColor: '#ffc107' // yellow
+      });
+      // Holidays don't count as workdays
+      currentDate.setDate(currentDate.getDate() + 1);
+      continue;
+    }
+
+    // ✅ Add workday
+    workdayDates.push(new Date(currentDate));
+    daysAdded++;
+
+    // Hybrid hours calculation
+    if (hybridEnabled && dayToggle) {
+      const onsiteRadio = document.getElementById(`${dayId}Onsite`);
+      const remoteRadio = document.getElementById(`${dayId}Remote`);
+      if (onsiteRadio && onsiteRadio.checked) onsiteHours += hoursPerShift;
+      else if (remoteRadio && remoteRadio.checked) remoteHours += hoursPerShift;
+      else onsiteHours += hoursPerShift; // fallback
+    }
+
+    // Highlight workday in green (except the last day, will highlight separately)
+    calendar.addEvent({
+      title: `${company} - Day ${workdayDates.length}`,
+      start: dateStr,
+      display: 'background',
+      backgroundColor: '#28a745'
+    });
 
     currentDate.setDate(currentDate.getDate() + 1);
   }
 
-  // Highlight workdays in green
-  for (let i = 0; i < workdayDates.length - 1; i++) {
-    calendar.addEvent({
-      title: `${company} - Day ${i + 1}`,
-      start: workdayDates[i].toISOString().split('T')[0],
-      display: 'background',
-      backgroundColor: '#28a745'
-    });
-  }
-
-  // Highlight end day in red
+  // Highlight end date in red
   const endDate = workdayDates[workdayDates.length - 1];
   calendar.addEvent({
     title: `${company} - End`,
@@ -196,6 +186,7 @@ async function calculateDays() {
     display: 'background',
     backgroundColor: '#dc3545'
   });
+
 
   // Prepare message
   let message = `Company: ${company}\n`;
